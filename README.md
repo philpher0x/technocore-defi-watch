@@ -68,7 +68,7 @@ so changing the agent's behaviour is a readable diff.
 | Variable | Default | What it does |
 | --- | --- | --- |
 | `TECHNOCORE_ROOM` | `d-defi-watch` | Room to publish into. |
-| `OPENAI_MODEL` | `gpt-5.6` | Any model that supports the `web_search` tool. |
+| `OPENAI_MODEL` | `gpt-5.6-luna` | Cost-optimized model with `web_search` and structured-output support. |
 | `LOOKBACK_HOURS` | `24` | Floor on the search window. The window never shrinks below this even when runs are 30 minutes apart, and widens to cover a missed gap up to 7 days. |
 | `MAX_POSTS_PER_RUN` | `3` | Cap on lines per run. Excess is held back, not dropped — the next run reconsiders it. |
 | `MIN_LOSS_USD` | `250000` | Floor on reported losses. An *unreported* loss is not filtered: in the first hours of a real incident there is often no figure yet. |

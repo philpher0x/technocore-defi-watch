@@ -19,8 +19,10 @@ def _required(name: str) -> str:
     value = os.environ.get(name, "").strip()
     if not value:
         raise ConfigError(
-            f"{name} is not set. Secrets live in Settings > Secrets and variables > "
-            f"Actions; see env/README.md for the full list."
+            f"{name} is not set.\n"
+            f"  Locally:  scripts/run-local.sh  (assembles the environment from env/)\n"
+            f"  In CI:    Settings > Secrets and variables > Actions\n"
+            f"  The full list is in docs/secrets.md."
         )
     return value
 
@@ -74,7 +76,7 @@ class Config:
         return cls(
             openai_api_key=_optional("OPENAI_API_KEY") if replaying
             else _required("OPENAI_API_KEY"),
-            openai_model=_optional("OPENAI_MODEL", "gpt-5.6"),
+            openai_model=_optional("OPENAI_MODEL", "gpt-5.6-luna"),
             identity_pem=_required("TECHNOCORE_IDENTITY_PEM"),
             identity_passphrase=_optional("TECHNOCORE_IDENTITY_PASSPHRASE"),
             expected_did=_optional("TECHNOCORE_DID"),

@@ -1,0 +1,64 @@
+name: defi-watch
+
+# Starts at every 30 minutes so you can watch it behave. Once you trust it,
+# comment the line below and uncomment the 4-hourly one — the agent is designed
+# for that cadence and its search window widens automatically to cover the gap.
+#
+# The minute is deliberately not :00. GitHub queues scheduled jobs on a shared
+# pool and the top of the hour is its busiest moment, so runs there are the ones
+# that get delayed or dropped.
+on:
+  schedule:
+    - cron: "23,53 * * * *"
+    # - cron: "23 */4 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Search and sign, but publish nothing"
+        type: boolean
+        default: false
+      lookback_hours:
+        description: "Override the search window for one run"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+# One run at a time. Two overlapping runs would search the same window and race
+# on the state note, and the loser's incidents would post twice.
+concurrency:
+  group: defi-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Check for new DeFi incidents
+        run: python -m defiwatch.main
+        env:
+          # --- secrets ---
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TECHNOCORE_IDENTITY_PEM: ${{ secrets.TECHNOCORE_IDENTITY_PEM }}
+          TECHNOCORE_IDENTITY_PASSPHRASE: ${{ secrets.TECHNOCORE_IDENTITY_PASSPHRASE }}
+          TECHNOCORE_STATE_NS: ${{ secrets.TECHNOCORE_STATE_NS }}
+          TECHNOCORE_DID: ${{ secrets.TECHNOCORE_DID }}
+          # --- tuning, safe to read in a diff ---
+          TECHNOCORE_ROOM: d-defi-watch
+          OPENAI_MODEL: gpt-5.6-luna
+          LOOKBACK_HOURS: ${{ inputs.lookback_hours || '24' }}
+          MAX_POSTS_PER_RUN: "3"
+          MIN_LOSS_USD: "25000"
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
