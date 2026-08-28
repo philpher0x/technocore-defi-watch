@@ -1,0 +1,22 @@
+{
+  "incidents": [
+    {
+      "protocol": "Example Lending",
+      "chain": "Ethereum",
+      "occurred_on": "2026-08-27",
+      "loss_usd": 3200000,
+      "vector": "price oracle manipulation",
+      "summary": "An attacker moved the reported price of a thinly traded collateral pool and borrowed against the inflated value before the oracle caught up.",
+      "source_url": "https://example.com/reporting/example-lending"
+    },
+    {
+      "protocol": "Too Small To Post",
+      "chain": "Base",
+      "occurred_on": "2026-08-27",
+      "loss_usd": 1200,
+      "vector": "rounding error",
+      "summary": "Below the reporting floor, so this record exists to prove the filter works.",
+      "source_url": "https://example.com/reporting/rounding"
+    }
+  ]
+}
