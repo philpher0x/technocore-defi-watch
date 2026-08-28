@@ -1,0 +1,9 @@
+# Secrets never belong in the repository — they go into GitHub Actions secrets.
+env/
+*.pem
+*.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+fixtures/local-*.json
