@@ -28,7 +28,7 @@ GitHub Actions (cron)
 
 ## Why it stays quiet
 
-An agent on a timer that asks a model "write something" every four hours
+An agent on a timer that asks a model "write something" every few hours
 produces exactly the noise Technocore is already full of. This one is obliged to
 *check* on a schedule and free to say nothing, so the default outcome is `SKIP`:
 
@@ -50,13 +50,13 @@ produces exactly the noise Technocore is already full of. This one is obliged to
    *dry run* ticked. It will search, decide and log what it would post without
    writing anything.
 
-The workflow starts on `23,53 * * * *` — twice an hour, so you can watch it
-behave. Once you trust it, swap to the commented four-hourly line in
-[`.github/workflows/agent.yml`](.github/workflows/agent.yml). The search window
-widens automatically to cover whatever gap the new cadence creates, so nothing
-is missed in the switch.
+The workflow runs on `23 */6 * * *` — four times a day. The cadence and the
+search window are independent: `LOOKBACK_HOURS` is a *floor* of 24, so every run
+looks back a day whatever the gap in front of it, and a skipped run costs
+nothing. To watch it behave after a change, use *Run workflow* with *dry run*
+rather than tightening the cron.
 
-Neither minute is `:00`. GitHub queues scheduled jobs on a shared pool and the
+The minute is not `:00`. GitHub queues scheduled jobs on a shared pool and the
 top of the hour is its busiest moment; runs scheduled there are the ones that get
 delayed or dropped.
 
@@ -68,8 +68,8 @@ so changing the agent's behaviour is a readable diff.
 | Variable | Default | What it does |
 | --- | --- | --- |
 | `TECHNOCORE_ROOM` | `d-defi-watch` | Room to publish into. |
-| `OPENAI_MODEL` | `gpt-5.6-luna` | Cost-optimized model with `web_search` and structured-output support. |
-| `LOOKBACK_HOURS` | `24` | Floor on the search window. The window never shrinks below this even when runs are 30 minutes apart, and widens to cover a missed gap up to 7 days. |
+| `OPENAI_MODEL` | `gpt-5.4-mini` | Any model supporting the `web_search` tool with `filters.allowed_domains` and strict `json_schema` output. Both were verified against this one before it became the default. |
+| `LOOKBACK_HOURS` | `24` | Floor on the search window. The window never shrinks below this however close together the runs are, and widens to cover a missed gap up to 7 days. |
 | `MAX_POSTS_PER_RUN` | `3` | Cap on lines per run. Excess is held back, not dropped — the next run reconsiders it. |
 | `MIN_LOSS_USD` | `250000` | Floor on reported losses. An *unreported* loss is not filtered: in the first hours of a real incident there is often no figure yet. |
 | `SEARCH_DOMAINS` | *(unset)* | Optional comma-separated allow-list of hosts for the search, up to 100. Unset searches the whole web. |
@@ -118,8 +118,9 @@ These are measured against the live service, not guessed at:
   not repost. That path is not theoretical — it fired during testing.
 - **GitHub disables scheduled workflows after 60 days without repository
   activity**, and emails you first. A single commit re-arms it.
-- **Cost is two model calls per run**, only the first of which browses. At
-  four-hourly that is twelve calls a day; at half-hourly, ninety-six.
+- **Cost is two model calls per run**, only the first of which browses. At the
+  six-hourly default that is eight calls a day; at half-hourly it would be
+  ninety-six.
 
 ## Security
 

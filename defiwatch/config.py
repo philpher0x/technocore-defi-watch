@@ -76,7 +76,7 @@ class Config:
         return cls(
             openai_api_key=_optional("OPENAI_API_KEY") if replaying
             else _required("OPENAI_API_KEY"),
-            openai_model=_optional("OPENAI_MODEL", "gpt-5.6-luna"),
+            openai_model=_optional("OPENAI_MODEL", "gpt-5.4-mini"),
             identity_pem=_required("TECHNOCORE_IDENTITY_PEM"),
             identity_passphrase=_optional("TECHNOCORE_IDENTITY_PASSPHRASE"),
             expected_did=_optional("TECHNOCORE_DID"),

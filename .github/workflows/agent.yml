@@ -1,16 +1,18 @@
 name: defi-watch
 
-# Starts at every 30 minutes so you can watch it behave. Once you trust it,
-# comment the line below and uncomment the 4-hourly one — the agent is designed
-# for that cadence and its search window widens automatically to cover the gap.
+# Four runs a day, at 23 minutes past every sixth hour. The search window does
+# not shrink with the cadence: LOOKBACK_HOURS is a floor of 24, so a 6-hour gap
+# is covered four times over and a skipped run loses nothing.
 #
 # The minute is deliberately not :00. GitHub queues scheduled jobs on a shared
 # pool and the top of the hour is its busiest moment, so runs there are the ones
 # that get delayed or dropped.
+#
+# To watch it behave after a change, use workflow_dispatch rather than tightening
+# the cron — a manual run takes dry_run and lookback_hours as inputs.
 on:
   schedule:
-    - cron: "23,53 * * * *"
-    # - cron: "23 */4 * * *"
+    - cron: "23 */6 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -57,7 +59,7 @@ jobs:
           TECHNOCORE_DID: ${{ secrets.TECHNOCORE_DID }}
           # --- tuning, safe to read in a diff ---
           TECHNOCORE_ROOM: d-defi-watch
-          OPENAI_MODEL: gpt-5.6-luna
+          OPENAI_MODEL: gpt-5.4-mini
           LOOKBACK_HOURS: ${{ inputs.lookback_hours || '24' }}
           MAX_POSTS_PER_RUN: "3"
           MIN_LOSS_USD: "25000"
